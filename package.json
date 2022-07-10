@@ -4,7 +4,8 @@
   "description": "My Experiments with webpack",
   "scripts": {
     "build": "webpack",
-    "serve": "webpack serve"
+    "serve": "webpack serve",
+    "lint:js:fix": "npx eslint . --ext .js --fix"
   },
   "main": "src/index.js",
   "author": "pokhiii",
