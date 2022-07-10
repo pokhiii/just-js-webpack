@@ -1,9 +1,5 @@
-/* eslint-disable no-return-await */
-/* eslint-disable array-callback-return */
-/* eslint-disable handle-callback-err */
-/* eslint-disable camelcase */
-/* eslint-disable class-methods-use-this */
 const { parseString } = require('xml2js')
+const isArray = require('lodash/isArray')
 const XmlBase = require('./xmlBase')
 const Contributor = require('./contributor')
 const Abstract = require('./abstract')
@@ -108,17 +104,46 @@ class Metadata extends XmlBase {
     this.xmlObject(bookTitle[0]).find('target').remove()
     this.xmlObject(bookTitle[0]).find('xref').remove()
 
-    // AFTER
-    // console.log(this.xmlObject(bookTitle[0]).html())
-
     return this.xmlObject(bookTitle[0]).html()
   }
 
   async pubDate(date) {
     if (!date) return Promise.resolve(null)
+
+    const isRange = isArray(date)
+    const xmlString = isRange ? date.join('') : date
+
+    const dateResolver = (value) => ({
+      date: {
+        year: value.date.year || null,
+        day: value.date.day || null,
+        month: value.date.month || null,
+      },
+      dateRange: {
+        startMonth: null,
+        endMonth: null,
+        startYear: null,
+        endYear: null,
+      },
+    })
+
+    const dateRangeResolver = (value) => ({
+      date: {
+        year: null,
+        day: null,
+        month: null,
+      },
+      dateRange: {
+        startMonth: value.date.month[0] || null,
+        endMonth: value.date.month[1] || null,
+        startYear: value.date.year[0] || null,
+        endYear: value.date.year[1] || null,
+      },
+    })
+
     return await new Promise(resolve => {
       parseString(
-        `<date>${date}</date>`,
+        `<date>${xmlString}</date>`,
         {
           explicitArray: false,
           trim: true,
@@ -126,19 +151,7 @@ class Metadata extends XmlBase {
           ignoreAttrs: false,
         },
         (err, value) => {
-          resolve({
-            date: {
-              year: value.date.year || null,
-              day: value.date.day || null,
-              month: value.date.month || null,
-            },
-            dateRange: {
-              startMonth: null,
-              endMonth: null,
-              startYear: null,
-              endYear: null,
-            },
-          })
+          resolve(isRange ? dateRangeResolver(value) : dateResolver(value))
         },
       )
     })

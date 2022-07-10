@@ -11,15 +11,8 @@ class HandleNcbiMessage {
     let parsedData = null
 
     try {
-      if (this.checkIfTagExists(this.content.toString().substring(0, 500), 'book')) {
-        parsedData = new Book(this.content.toString())
-      } else {
-        // parsedData = new BookPartWrapper(this.content.toString())
-      }
-
-      console.log(`kafka Parsed Message successfully`)
+      parsedData = new Book(this.content.toString())
     } catch (e) {
-      console.error(`HandleNcbiMessage: error`)
       parsedData = null
     }
 

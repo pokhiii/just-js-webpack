@@ -4,6 +4,7 @@ const decoder = require('html-entities')
 
 class XmlBase {
   constructor(path, options) {
+    // console.log('contructor called from', new.target.name)
     this.path = path
     this.cheerio = cheerio
     this.options = options || {}
@@ -52,7 +53,17 @@ class XmlBase {
           .children()
           .filter((i, el) => el.name.includes(path.children))
       } else {
-        value = this.xmlObject(node).html()
+        if (node === 'pub-date') {
+          const attr = this.xmlObject(node).attr('date-type');
+          if (attr === 'pubr') {
+            value = [];
+            this.xmlObject(node).each((i, elm) => {
+              value.push(this.xmlObject(elm).html())
+            })
+          }
+        } else {
+          value = this.xmlObject(node).html()
+        }
       }
 
       let modelVal

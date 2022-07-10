@@ -9,4 +9,4 @@ const entity = new BookXmlConversion();
 
 entity.setContent(xmlBookContent);
 
-entity.handleMessage().then(res => console.log(res))
+entity.handleMessage().then(res => console.log('Fin.'))
